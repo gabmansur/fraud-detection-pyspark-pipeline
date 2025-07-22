@@ -86,7 +86,8 @@ This project demonstrates real-world data engineering principles in a focused pr
 2. Transforms the data using PySpark (parsing timestamps, casting amounts)
 3. Applies a fraud rule: flags accounts that make three or more transactions to the same IBAN within a five-minute window
 4. Uses PyTest to validate that the transformations and logic work as expected
-5. Runs all tests automatically through GitHub Actions on every commit
+5. Runs all tests automaticall.\.venv\Scripts\Activate
+y through GitHub Actions on every commit
 
 ## Project Structure
 
