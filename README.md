@@ -55,13 +55,14 @@ This mirrors how financial institutions like Rabobank monitor transactions at sc
 
 ## Tech Stack
 
-| Layer       | Tool            |
-|-------------|-----------------|
-| Data engine | PySpark         |
-| Testing     | PyTest          |
-| Automation  | GitHub Actions  |
-| Language    | Python 3.10+    |
-
+| **Layer**            | **Tool / Version**            | **Why It’s Used**                                                                 |
+|----------------------|-------------------------------|-----------------------------------------------------------------------------------|
+| Data Engine        | **PySpark 4.0.0**              | For scalable data transformations, simulating real financial pipelines           |
+|  Testing            | **PyTest 8.4.1** + `pytest-env` | To validate both ETL steps and fraud logic with isolated, reliable test cases    |
+|  CI/CD Automation   | **GitHub Actions** + `test.yml` | Automatically runs tests on every commit to catch issues early                   |
+| Language           | **Python 3.11**                | Compatible with the latest PySpark and library versions                          |
+|  Dependency Mgmt    | `requirements.txt` + `.venv`   | Ensures reproducible environments and clean package installs                     |
+| Dev CLI            | **Makefile**                   | Simplifies local development with one-line commands like `make test`.             |
 ## Running Locally with Make
 
 To simplify local execution, you can use the included `Makefile`. This avoids long terminal commands and ensures you always follow the correct steps.
