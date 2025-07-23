@@ -14,6 +14,7 @@ This is a clean and testable fraud detection prototype, built locally using PySp
 - [Tests](#tests)
 - [Output](#output)
 - [Future Improvements](#future-improvements)
+- [FAQ](#faq)
 
 ## Overview
 
@@ -293,6 +294,8 @@ Also, I have better things to do than remember 6 flags every time I want to test
 
 I'd say more like want to sit and cry with how much time I lost battling Windows instead of writing code. Between weird python3 alias issues, pip behaving like it was on vacation, and file paths deciding to rebel, I quickly learned that trying to do data engineering on native Windows is like trying to run a marathon in flip-flops.
 
+![aaaaaaa](meme.png)
+
 Switching to Ubuntu via WSL2 felt like moving from dial-up to fiber. Suddenly dependencies just worked, PySpark behaved and Makefile commands actually ran without cryptic errors
 
 Moral of the story: I spent more time learning what not to do in cross-platform setups than expected, but that’s part of the journey. Now I know how to build stuff that actually runs cleanly on any machine. Including one with a cat sitting on the keyboard.
@@ -302,3 +305,4 @@ Moral of the story: I spent more time learning what not to do in cross-platform 
 Tom is Head of QA: he walks across the keyboard during testing.
 Mia is the quiet CTO: she watches from her bench and judges your DAG decisions in silence.
 Coffee is the uncredited co-author of every function that works on the first try.
+
