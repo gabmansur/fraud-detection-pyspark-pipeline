@@ -1,5 +1,5 @@
 import sys
-import os
+from pathlib import Path
 
-# Adiciona o caminho do diretório base
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Adiciona a pasta raiz ao sys.path
+sys.path.append(str(Path(__file__).resolve().parents[1]))

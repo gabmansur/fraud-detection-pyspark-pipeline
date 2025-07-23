@@ -1,41 +1,58 @@
 # Makefile
 
-# This is like a list of shortcuts.
-# Instead of typing long commands, just do:
+# Shortcut list for local development.
 #
-#   make init        → setup .venv and install dependencies
-#   make transform   → run the ETL pipeline (loads + transforms data)
-#   make test        → run tests using pytest
-#   make freeze      → save current packages to requirements.txt
-#   make clean       → delete .pytest_cache and output files
-#   make all         → clean + transform + test (full pipeline run)
-#
-# Use Git Bash to run these if you're on Windows.
-# Example: right-click → Git Bash Here → type `make transform`
+#   make init        → Set up virtual env + install dependencies
+#   make transform   → Run ETL pipeline (load + transform)
+#   make fraud       → Run fraud detection rules
+#   make visualize   → Run visualization script
+#   make test        → Run unit tests
+#   make freeze      → Export current dependencies to requirements.txt
+#   make report      → Export executed notebook as HTML
+#   make clean       → Delete all generated files and caches
+#   make run         → Full pipeline (init + transform + fraud + visualize)
+#   make all         → Clean + transform + test + visualize (no install)
 #
 # -----------------------------
 
-# Create a venv if needed
-init:
-	python -m venv .venv
-	.venv\Scripts\activate && pip install -r requirements.txt
+# Use bash-friendly paths for WSL/Linux
 
-# Run transformation script
-transform:
-	.venv\Scripts\activate && python src/etl.py
-
-# Run tests with pytest
+# Run tests with correct PYTHONPATH
 test:
-	.venv\Scripts\activate && pytest tests/
+	PYTHONPATH=. .venv/bin/python -m pytest tests/
 
-# Freeze dependencies
+# Full pipeline (setup + ETL + fraud detection + visualizations)
+run: init transform fraud visualize
+
+# Setup virtual environment and install dependencies
+init:
+	python3 -m venv .venv
+	.venv/bin/pip install --upgrade pip
+	.venv/bin/pip install -r requirements.txt
+
+# Run the ETL script
+transform:
+	.venv/bin/python src/etl.py
+
+# Run fraud detection logic
+fraud:
+	.venv/bin/python src/fraud_rules.py
+
+# Generate visualizations
+visualize:
+	.venv/bin/python src/visualize.py
+
+# Run and export final report notebook
+report:
+	.venv/bin/jupyter nbconvert --to html --execute notebooks/final_report.ipynb --output artifacts/final_report.html
+
+# Export current dependencies
 freeze:
-	.venv\Scripts\activate && pip freeze > requirements.txt
+	.venv/bin/pip freeze > requirements.txt
 
-# Clean artifacts
+# Remove generated files and caches
 clean:
-	rd /s /q artifacts || true
-	rd /s /q .pytest_cache || true
+	rm -rf artifacts .pytest_cache __pycache__ */__pycache__ output
 
-# Re-run everything clean
-all: clean transform test
+# Clean + ETL + tests + visualization (no init)
+all: clean transform test visualize

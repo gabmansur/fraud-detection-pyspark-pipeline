@@ -1,26 +1,27 @@
+import logging
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import window, count, col
 
-import os
-os.environ["PYSPARK_PYTHON"] = "./.venv/Scripts/python.exe"
+# ───── LOGGING SETUP ───────────────────────────────
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-def detect_rapid_repeated_transfers(df: DataFrame) -> DataFrame:
-    """
-    Detects accounts that made at least 3 transactions to the same counterparty
-    within a 5-minute window.
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
-    Parameters:
-    - df: Spark DataFrame with columns ['account_id', 'counterparty_iban', 'timestamp']
+# ───── FUNCTION ────────────────────────────────────
+def detect_repeated_transfers(df: DataFrame) -> DataFrame:
+    logger.info("Detecting repeated transfers based on user_id, timestamp, and amount...")
 
-    Returns:
-    - DataFrame with columns ['account_id', 'counterparty_iban', 'window', 'tx_count']
-    """
-    return (
-        df.groupBy(
-            col("account_id"),
-            col("counterparty_iban"),
-            window(col("timestamp"), "5 minutes")
-        )
-        .agg(count("*").alias("tx_count"))
-        .filter(col("tx_count") >= 3)
+    result_df = (
+        df.groupBy("user_id", "timestamp", "amount")
+          .count()
+          .filter("count > 1")
     )
+
+    count = result_df.count()
+    logger.info(f"Detected {count} repeated transfers.")
+
+    return result_df

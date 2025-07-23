@@ -1,45 +1,59 @@
+import logging
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import col, to_timestamp
-from pyspark.sql.types import StructType, StructField, StringType, DoubleType
 
+# ───── LOGGING SETUP ───────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("FraudETL")
+
+# ───── FUNCTIONS ───────────────────────────────────
 def load_data(spark: SparkSession, path: str) -> DataFrame:
-    print(f"Loading data from: {path}")
-
-    schema = StructType([
-        StructField("transaction_id", StringType(), True),
-        StructField("account_id", StringType(), True),
-        StructField("timestamp", StringType(), True),  # We’ll cast this after
-        StructField("amount", StringType(), True),     # Same here
-        StructField("currency", StringType(), True),
-        StructField("description", StringType(), True),
-        StructField("counterparty_name", StringType(), True),
-        StructField("counterparty_iban", StringType(), True),
-        StructField("category", StringType(), True),
-        StructField("payment_type", StringType(), True)
-    ])
-
-    return spark.read.csv(path, header=True, schema=schema)
+    logger.info(f"Loading data from: {path}")
+    df = spark.read.csv(path, header=True, inferSchema=True)
+    logger.info(f"Loaded {df.count()} rows with {len(df.columns)} columns.")
+    return df
 
 def transform(df: DataFrame) -> DataFrame:
-    print(" Transforming data: casting 'timestamp' and 'amount'")
+    logger.info("Transforming data: parsing timestamps and casting amounts...")
     return (
         df.withColumn("timestamp", to_timestamp("timestamp"))
           .withColumn("amount", col("amount").cast("double"))
     )
 
+# ───── MAIN ────────────────────────────────────────
 if __name__ == "__main__":
-    spark = SparkSession.builder.appName("FraudDetector").getOrCreate()
+    logger.info("Starting Spark ETL job...")
 
-    input_path = "data/transactions.csv"
-    output_path = "artifacts/output.parquet"
+    spark = (
+        SparkSession.builder
+        .appName("FraudETL")
+        .config("spark.sql.parquet.enableVectorizedReader", "false")
+        .config("spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
+        .getOrCreate()
+    )
 
-    df = load_data(spark, input_path)
-    df = transform(df)
+    try:
+        df = load_data(spark, "data/transactions.csv")
+        df = transform(df)
 
-    print("Showing transformed data:")
-    df.show(truncate=False)
+        logger.info("Writing transformed data to artifacts/output.csv...")
+        (
+            df.coalesce(1)
+              .write
+              .mode("overwrite")
+              .option("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
+              .csv("artifacts/output.csv", header=True)
+        )
 
-    print(f"Writing transformed data to: {output_path}")
-    df.write.mode("overwrite").parquet(output_path)
+        logger.info("ETL job completed successfully. ✨")
 
-    spark.stop()
+    except Exception as e:
+        logger.exception("ETL job failed with an error:")
+        raise e
+
+    finally:
+        logger.info("Stopping Spark session.")
+        spark.stop()

@@ -1,15 +1,22 @@
-import pytest
-from pyspark.sql import SparkSession
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.etl import transform
+from pyspark.sql import SparkSession
+import pytest
 
 @pytest.fixture(scope="session")
 def spark():
-    return SparkSession.builder.master("local").appName("test").getOrCreate()
+    return SparkSession.builder.master("local[*]").appName("TestETL").getOrCreate()
 
 def test_transform_schema(spark):
-    df = spark.createDataFrame([
-        ("TX1", "A001", "2025-07-01 10:00:00", "1000", "EUR", "desc", "Alice", "NL00BANK0001", "shopping", "bulk")
-    ], ["transaction_id", "account_id", "timestamp", "amount", "currency", "description", "counterparty_name", "counterparty_iban", "category", "payment_type"])
-    
-    df_t = transform(df)
-    assert df_t.schema["amount"].dataType.typeName() == "double"
+    data = [("2023-01-01 12:00:00", "100.50")]
+    df = spark.createDataFrame(data, ["timestamp", "amount"])
+    result = transform(df)
+
+    # Debug visual opcional
+    # result.show()
+
+    assert result.schema["timestamp"].dataType.simpleString() == "timestamp"
+    assert result.schema["amount"].dataType.simpleString() == "double"

@@ -1,46 +1,31 @@
-name: Run PyTest
+name: Run Pytest
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Java 17 (required by Spark 4.0)
-        id: setup-java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m venv .venv
+          source .venv/bin/activate
           pip install -r requirements.txt
 
-      - name: Run Pytest with JUnit output
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+      - name: Run tests
         run: |
-          echo "JAVA_HOME is set to $JAVA_HOME"
-          pytest tests/ --junitxml=test-results.xml
-
-      - name: Upload Pytest results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-results
-          path: test-results.xml
+          source .venv/bin/activate
+          make test

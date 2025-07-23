@@ -1,18 +1,22 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.fraud_rules import detect_repeated_transfers
+from pyspark.sql import SparkSession
 import pytest
-from pyspark.sql import SparkSession, Row
-from src.fraud_rules import detect_rapid_repeated_transfers
 
 @pytest.fixture(scope="session")
 def spark():
-    return SparkSession.builder.master("local").appName("test").getOrCreate()
+    return SparkSession.builder.master("local[*]").appName("TestRules").getOrCreate()
 
 def test_detect_repeated_transfers(spark):
-    data = [
-        Row(transaction_id="TX001", account_id="A001", timestamp="2025-07-01 10:00:00", counterparty_iban="NL11FAKE0001"),
-        Row(transaction_id="TX002", account_id="A001", timestamp="2025-07-01 10:01:00", counterparty_iban="NL11FAKE0001"),
-        Row(transaction_id="TX003", account_id="A001", timestamp="2025-07-01 10:02:00", counterparty_iban="NL11FAKE0001"),
-    ]
-    df = spark.createDataFrame(data)
-    df = df.withColumn("timestamp", df["timestamp"].cast("timestamp"))
-    result = detect_rapid_repeated_transfers(df)
+    data = [("u1", "2023-01-01 12:00:00", 100.0),
+            ("u1", "2023-01-01 12:00:00", 100.0)]
+    df = spark.createDataFrame(data, ["user_id", "timestamp", "amount"])
+    result = detect_repeated_transfers(df)
+
+    # Debug visual opcional
+    # result.show()
+
     assert result.count() == 1
