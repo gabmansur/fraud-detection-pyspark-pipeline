@@ -1,0 +1,42 @@
+# Virtual Envs
+.venv/
+venv/
+
+# Pytest
+.pytest_cache/
+.cache/
+*.coverage
+coverage.xml
+test-results/
+htmlcov/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Test debug logs
+*.log
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Data files (if not intentionally versioned)
+data/*.csv
+artifacts/
+assets/
+
+# Test discovery files
+*.tmp
+
+# Environment
+.env
+.env.*.local
+*.env
+
+# Jupyter (future-proofing)
+.ipynb_checkpoints/
+
+# MacOS + Windows junk
+.DS_Store
+Thumbs.db

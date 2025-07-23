@@ -12,12 +12,12 @@ This is a simple, fully functional prototype simulating how a financial institut
 
 - [Architecture & Design Choices](#architecture-and-design-choices)
 - [Component Breakdown](#component-breakdown)
-- [Key Skills & Focus Areas](#key-skills--focus-areas)  
 - [Tech Stack](#tech-stack)  
-- [What the Code Does](#what-the-code-does)  
-- [Project Structure](#project-structure)  
-- [Sample Transaction Schema](#sample-transaction-schema)  
+- [Running Locally with Make](#running-locally-with-make)
 - [What Happens When You Run It](#what-happens-when-you-run-it)  
+- [Project Structure](#project-structure)  
+- [Key Skills & Focus Areas](#key-skills--focus-areas)  
+- [Sample Transaction Schema](#sample-transaction-schema)  
 - [Future Development Ideas](#future-development-ideas)  
 - [FAQ — Why These Tools and Choices](#️faq--why-these-tools-and-choices)
 
@@ -34,7 +34,6 @@ This diagram shows how each component connects in the prototype:
 - **Continuous testing** on every commit via GitHub Actions (`.yml` config)
 
 This mirrors how financial institutions like Rabobank monitor transactions at scale.
-
 
 
 ![Architecture Diagram](/assets/architecture.png)
@@ -54,6 +53,64 @@ This mirrors how financial institutions like Rabobank monitor transactions at sc
 | `Automated test results`    | The outcome of the above: a green ✅ or red ❌ that tells you whether all your logic is working.                                           | Gives instant feedback that the project is safe to continue building on or that something broke and needs fixing.               |
 
 
+## Tech Stack
+
+| Layer       | Tool            |
+|-------------|-----------------|
+| Data engine | PySpark         |
+| Testing     | PyTest          |
+| Automation  | GitHub Actions  |
+| Language    | Python 3.10+    |
+
+## Running Locally with Make
+
+To simplify local execution, you can use the included `Makefile`. This avoids long terminal commands and ensures you always follow the correct steps.
+
+### Available Commands:
+
+```bash
+make test        # Runs all tests with PyTest
+make etl         # Runs the ETL transformation script
+make fraud       # Runs the fraud detection logic
+make clean       # Removes temporary files and cached PyTest artifacts
+```
+
+## What Happens When You Run It
+
+Running this pipeline simulates how a fraud detection system works, step by step:
+
+1. PySpark loads the transaction data from data/transactions.csv
+
+2. ETL logic (etl.py) transforms the raw data:
+
+- Parses timestamps
+
+- Casts amount fields to numeric
+
+- Ensures schema consistency
+
+3. Fraud detection logic (fraud_rules.py) flags suspicious behavior:
+
+- If the same sender transfers money to the same IBAN ≥3 times in 5 minutes, it gets flagged
+
+4. PyTest validates both the ETL steps and fraud rules to make sure they behave as expected
+
+5. GitHub Actions automatically runs all tests every time code is pushed to the repo
+
+
+## Project Structure
+
+| Path                         | Description                                        |
+| ---------------------------- | -------------------------------------------------- |
+| `data/transactions.csv`      | Simulated transactions inspired by Rabobank’s PSD2 schema for clarity.       |
+| `src/etl.py`                 | PySpark pipeline for loading and transforming data |
+| `src/fraud_rules.py`         | Fraud rule to detect repeated IBAN transactions    |
+| `tests/test_etl.py`          | PyTest test for ETL data transformation            |
+| `tests/test_fraud_rules.py`  | PyTest test for fraud rule logic                   |
+| `.github/workflows/test.yml` | GitHub Actions pipeline for automated testing      |
+| `requirements.txt`           | Python dependencies (PySpark, PyTest)              |
+| `README.md`                  | Project documentation                              |
+
 ## Key Skills & Focus Areas
 
 This project demonstrates real-world data engineering principles in a focused prototype:
@@ -68,39 +125,6 @@ This project demonstrates real-world data engineering principles in a focused pr
 | Modular architecture  | Organized code with clear separation of ETL, rules, data, tests, and workflows             |
 
 🪄 Gabi’s take: I built this to reflect real-world expectations: clean structure, automation, modularity, and accuracy, all under 24 hours.
-
-## Tech Stack
-
-| Layer       | Tool            |
-|-------------|-----------------|
-| Data engine | PySpark         |
-| Testing     | PyTest          |
-| Automation  | GitHub Actions  |
-| Language    | Python 3.10+    |
-
----
-
-## How It Works
-
-1. Loads example transaction data from a CSV file
-2. Transforms the data using PySpark (parsing timestamps, casting amounts)
-3. Applies a fraud rule: flags accounts that make three or more transactions to the same IBAN within a five-minute window
-4. Uses PyTest to validate that the transformations and logic work as expected
-5. Runs all tests automaticall.\.venv\Scripts\Activate
-y through GitHub Actions on every commit
-
-## Project Structure
-
-| Path                         | Description                                        |
-| ---------------------------- | -------------------------------------------------- |
-| `data/transactions.csv`      | Simulated transactions inspired by Rabobank’s PSD2 schema for clarity.       |
-| `src/etl.py`                 | PySpark pipeline for loading and transforming data |
-| `src/fraud_rules.py`         | Fraud rule to detect repeated IBAN transactions    |
-| `tests/test_etl.py`          | PyTest test for ETL data transformation            |
-| `tests/test_fraud_rules.py`  | PyTest test for fraud rule logic                   |
-| `.github/workflows/test.yml` | GitHub Actions pipeline for automated testing      |
-| `requirements.txt`           | Python dependencies (PySpark, PyTest)              |
-| `README.md`                  | Project documentation                              |
 
 ## Sample Transaction Schema
 
@@ -119,11 +143,7 @@ Based on field definitions from [Rabobank’s PSD2 API](https://developer.raboba
 | `category`          | Type of expense (e.g., crypto, travel)  |
 | `payment_type`      | e.g. `single`, `bulk`, or `direct_debit`|
 
-## What Happens When You Run It
-1. etl.py loads the CSV using PySpark, parsing timestamps and casting data
-2. fraud_rules.py runs rule-based logic to flag suspicious transfers
-3. PyTest tests (test_etl.py, test_fraud_rules.py) validate everything
-4. GitHub Actions (.yml) automatically triggers tests on every commit
+
 
 ## Future Development Ideas
 
@@ -185,6 +205,9 @@ Because this isn’t just about the output, it’s about the process. code shoul
 
 ❓ Why GitHub Actions instead of Azure Pipelines?
 This is just a quick prototype, so GitHub Actions was the fastest and easiest to set up. But yeah, in a big corp like Rabobank, I’d use Azure Pipelines to plug into their cloud stuff. This is just the “fast and clean” demo version.
+
+❓ Why a Makefile?
+Because I hate typing long commands every time. This keeps setup clean, especially when juggling different scripts or testing frequently. It’s also easier to onboard other devs quickly.
 
 ❓ Isn’t this fraud rule too simple?
 Yep, and that’s the point. I wanted to show how rules work, not build an entire detection system. You could easily replace this logic with something more complex (ML, thresholds, geolocation, etc.).
