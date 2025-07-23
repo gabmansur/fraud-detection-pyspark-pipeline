@@ -2,6 +2,7 @@
 .venv/
 venv/
 
+
 # Pytest
 .pytest_cache/
 .cache/
@@ -13,6 +14,7 @@ htmlcov/
 # Python cache
 __pycache__/
 *.py[cod]
+*.pyc
 
 # Test debug logs
 *.log
