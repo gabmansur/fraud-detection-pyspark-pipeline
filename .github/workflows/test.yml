@@ -14,16 +14,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
-
       - name: Set up Java 17 for Spark 4.0
+        id: setup-java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -31,6 +32,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Pytest with JUnit output
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         run: |
           pytest tests/ --junitxml=test-results.xml
 
