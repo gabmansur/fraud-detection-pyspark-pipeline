@@ -11,12 +11,17 @@ def spark():
     return SparkSession.builder.master("local[*]").appName("TestRules").getOrCreate()
 
 def test_detect_repeated_transfers(spark):
-    data = [("u1", "2023-01-01 12:00:00", 100.0),
-            ("u1", "2023-01-01 12:00:00", 100.0)]
-    df = spark.createDataFrame(data, ["user_id", "timestamp", "amount"])
+    data = [
+        ("u1", "NL01BANK0123456789", "2023-01-01 12:00:00"),
+        ("u1", "NL01BANK0123456789", "2023-01-01 12:01:00"),
+        ("u1", "NL01BANK0123456789", "2023-01-01 12:02:00"),
+        ("u2", "NL02BANK9876543210", "2023-01-01 13:00:00")
+    ]
+    df = spark.createDataFrame(data, ["user_id", "counterparty_iban", "timestamp"])
+
     result = detect_repeated_transfers(df)
 
-    # Debug visual opcional
-    # result.show()
+    # Optional for debugging
+    # result.show(truncate=False)
 
     assert result.count() == 1
