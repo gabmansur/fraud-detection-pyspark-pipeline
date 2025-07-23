@@ -79,7 +79,7 @@ fraud-detection-pyspark-pipeline/
 The local data pipeline follows this flow:
 
 1. **Load Raw Data**  
-   CSV file from `data/transactions.csv` is read into a PySpark DataFrame.
+   CSV file from `data/transactions.csv` is read into a PySpark DataFrame. The structure of the transaction data follows the public format described in the [Rabobank Developer Portal](https://developer.rabobank.nl/api-documentation). Columns like user_id, timestamp, amount, and counterparty_iban were adapted to reflect how real transaction records are formatted in banking APIs — keeping this as close to production as possible while still being lightweight and local. Columns like user_id, timestamp, amount, and counterparty_iban were adapted to reflect how real transaction records are formatted in banking APIs — keeping this as close to production as possible while still being lightweight and local.
 
 2. **ETL Transformations**  
    Performed in [`etl.py`](src/etl.py), including:
@@ -152,6 +152,32 @@ You can easily add new rules by defining a new function in `fraud_rules.py` that
 1. Accepts a `DataFrame` as input
 2. Applies a filtering condition
 3. Returns a suspicious subset of transactions
+
+### Sample Input
+
+These are raw transactions from data/transactions.csv (based on Rabobank's API field structure):
+
+| user\_id | timestamp           | amount | counterparty\_iban |
+| -------- | ------------------- | ------ | ------------------ |
+| u1       | 2023-01-01 12:00:00 | 100.00 | NL01BANK0123456789 |
+| u1       | 2023-01-01 12:01:00 | 100.00 | NL01BANK0123456789 |
+| u1       | 2023-01-01 12:02:00 | 100.00 | NL01BANK0123456789 |
+| u2       | 2023-01-01 13:00:00 | 500.00 | NL02BANK9876543210 |
+
+
+This input simulates real-time bank transfers. The pipeline detects that u1 made 3 transfers to the same IBAN in under 5 minutes — a red flag for fraud.
+
+### Example Output (Flagged as Fraud)
+After running the fraud detection logic, here’s what your pipeline catches:
+
+| window\_start       | window\_end         | user\_id | counterparty\_iban | transfer\_count |
+| ------------------- | ------------------- | -------- | ------------------ | --------------- |
+| 2023-01-01 12:00:00 | 2023-01-01 12:05:00 | u1       | NL01BANK0123456789 | 3               |
+
+
+ Explanation:
+This row shows a 5-minute window where u1 made 3 transfers to the same IBAN — a pattern that often signals automated or malicious activity (like account takeover or fraud ring behavior). Perfect use-case for banks like Rabobank 
+
 
 ## Tests
 
