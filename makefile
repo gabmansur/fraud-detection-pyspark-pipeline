@@ -15,59 +15,48 @@ else
 	RM := rm -rf
 endif
 
-# Run unit tests
-test:
-	PYTHONPATH=. $(PYTHON) -m pytest tests/
+help:  ## Show available commands
+	@echo "Available commands:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-# Full pipeline
-run: prepare init fake transform fraud visualize
-
-# Create necessary folders
-prepare:
-	$(MKDIR) output && $(MKDIR) output/suspicious_transfers && $(MKDIR) artifacts
-
-# Create virtual environment and install requirements
-init:
+init:  ## Create virtual environment & install dependencies
 	test -d .venv || python3 -m venv .venv
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 
-# Generate fake transaction data
-fake:
+fake:  ## Generate fake transaction data
 	$(PYTHON) scripts/generate_fake_data.py
 
-# Run ETL logic
-transform:
+transform:  ## Run ETL pipeline
 	$(PYTHON) src/etl.py
 
-# Apply fraud detection rules
-fraud:
+fraud:  ## Apply fraud detection rules
 	$(PYTHON) scripts/fraud_detection.py
 
-# Visualize results
-visualize:
+visualize:  ## Generate transaction distribution plots
 	$(PYTHON) src/visualize.py artifacts/output.csv
 
-# Generate notebook report
-report:
+report:  ## Generate HTML report from notebook
 	$(JUPYTER) nbconvert --to html --execute notebooks/final_report.ipynb --output artifacts/final_report.html
 
-notebook:
+notebook:  ## (Optional) Generate notebook dynamically
 	.venv/bin/python scripts/generate_notebook.py
 
-# Freeze dependencies
-freeze:
+test:  ## Run unit tests with Pytest
+	PYTHONPATH=. $(PYTHON) -m pytest tests/
+
+freeze:  ## Freeze current environment into requirements.txt
 	$(PIP) install pipreqs
 	$(PYTHON) -m pipreqs . --force
 
-# Clean artifacts and outputs
-clean:
+clean:  ## Remove artifacts, output, and caches
 	$(RM) artifacts .pytest_cache __pycache__ */__pycache__ output
 
-help:
-	@echo "Available commands:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+prepare:  ## Create necessary folders
+	$(MKDIR) output && $(MKDIR) output/suspicious_transfers && $(MKDIR) artifacts
 
+run:  ## Run full pipeline (prepare + init + fake + transform + fraud + visualize)
+	make prepare init fake transform fraud visualize
 
-# All-in-one
-all: clean run test report
+all:  ## Clean, run full pipeline, test, and generate report
+	make clean run test report
