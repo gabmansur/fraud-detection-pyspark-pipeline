@@ -85,7 +85,7 @@ fraud-detection-pyspark-pipeline/
 The local data pipeline follows this flow:
 
 1. **Load Raw Data**  
-   CSV file from `data/transactions.csv` is read into a PySpark DataFrame. The structure of the transaction data is inspired in the public format described in the [Rabobank Developer Portal](https://developer.rabobank.nl/api-documentation). Columns like user_id, timestamp, amount, and counterparty_iban were adapted to reflect how real transaction records are formatted in banking APIs — keeping this as close to production as possible while still being lightweight and local.
+   CSV file from `data/transactions_demo.csv` is read into a PySpark DataFrame. The structure of the transaction data is inspired in the public format described in the [Rabobank Developer Portal](https://developer.rabobank.nl/api-documentation). Columns like user_id, timestamp, amount, and counterparty_iban were adapted to reflect how real transaction records are formatted in banking APIs — keeping this as close to production as possible while still being lightweight and local.
 
 2. **ETL Transformations**  
    Performed in [`etl.py`](src/etl.py), including:
@@ -179,7 +179,7 @@ You can easily add new rules by defining a new function in `fraud_rules.py` that
 
 ### Sample Input
 
-These are raw transactions from data/transactions.csv (based on Rabobank's API field structure):
+These are raw transactions from data/transactions_demo.csv (based on Rabobank's API field structure):
 
 | user\_id | timestamp           | amount | counterparty\_iban |
 | -------- | ------------------- | ------ | ------------------ |
