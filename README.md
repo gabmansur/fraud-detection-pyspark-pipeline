@@ -43,42 +43,47 @@ The goal was to build something functional, readable, and portable—without rel
 
 ## Architecture
 
-
-<details>
-<summary> 📁 Project Structure (click to expand)</summary>
-
-```text
+```
 fraud-detection-pyspark-pipeline/
 │
-├── .github/workflows/
-│   └── test.yml
-├── artifacts/
-│   ├── output.csv
-│   ├── transaction_distribution.png
-│   └── transactions_over_time.png
+├── .github/workflows/         
+│   └── test.yml               ← CI pipeline for automated testing
+│
+├── artifacts/                 
+│   ├── output.csv             ← Transformed transaction data
+│   ├── output.parquet         ← Parquet format output
+│   ├── transaction_distribution.png  ← Visual distribution of amounts
+│   └── final_report.html      ← Optional report generated from notebook
+│
 ├── data/
-│   └── transactions_demo.csv
+│   └── transactions_demo.csv  ← Raw input transaction data
+│
 ├── notebooks/
-│   └── final_report.ipynb
-├── output/suspicious_transfers/
-│   └── part-*.parquet
+│   └── final_report.ipynb     ← Optional report notebook
+│
+├── output/                    
+│   └── suspicious_transfers/  ← Outputs from fraud detection logic
+│
 ├── scripts/
-│   ├── fraud_detection.py
-│   ├── generate_fake_data.py
-│   └── generate_report_notebook.py
+│   ├── generate_fake_data.py  ← Generates mock transactions
+│   └── fraud_detection.py     ← Pipeline entrypoint script
+│
 ├── src/
-│   ├── etl.py
-│   ├── fraud_rules.py
-│   └── visualize.py
+│   ├── __init__.py
+│   ├── etl.py                 ← PySpark ETL logic
+│   ├── fraud_rules.py         ← Rule-based fraud detection logic
+│   └── visualize.py           ← Visualization logic
+│
 ├── tests/
-│   ├── test_etl.py
-│   └── test_fraud_rules.py
-├── Makefile
-├── README.md
-└── requirements.txt
+│   ├── conftest.py            ← Pytest fixtures and setup
+│   ├── test_etl.py            ← Unit tests for ETL logic
+│   └── test_fraud_rules.py    ← Unit tests for fraud rules
+│
+├── .venv/                     ← Virtual environment (excluded in Git)
+├── Makefile                   ← Local CLI with pipeline shortcuts
+├── requirements.txt           ← Project dependencies
+└── README.md                  ← Project overview and documentation
 ```
-</details>
-
 
 ## Pipeline Flow
 
