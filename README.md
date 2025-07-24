@@ -43,39 +43,42 @@ The goal was to build something functional, readable, and portable—without rel
 
 ## Architecture
 
+
+<details>
+<summary> 📁 Project Structure (click to expand)</summary>
+
 ```text
 fraud-detection-pyspark-pipeline/
 │
-├── .github/workflows/         ← GitHub Actions CI setup
-│   └── test.yml               ← CI pipeline for automated testing
-│
-├── artifacts/                 ← Generated output files
-│   ├── output.csv             ← Transformed transaction data
-│   ├── output.parquet         ← Parquet format output
-│   └── transaction_distribution.png  ← Visual distribution of transaction amounts
-│
+├── .github/workflows/
+│   └── test.yml
+├── artifacts/
+│   ├── output.csv
+│   ├── transaction_distribution.png
+│   └── transactions_over_time.png
 ├── data/
-│   └── transactions.csv       ← Raw input transaction data
-│
-├── output/                    ← Spark output from fraud_detection.py
-│
-├── src/                       ← Source code for data pipeline
-│   ├── __init__.py
-│   ├── etl.py                 ← PySpark ETL logic
-│   ├── fraud_rules.py         ← Fraud detection rule logic
-│   └── visualize.py           ← Transaction visualization logic
-│
-├── tests/                     ← Unit tests using Pytest
-│   ├── conftest.py            ← Pytest shared fixtures
-│   ├── test_etl.py            ← Tests for ETL logic
-│   └── test_fraud_rules.py    ← Tests for fraud rules
-│
-├── .venv/                     ← Virtual environment (excluded in version control)
-│
-├── Makefile                   ← CLI workflow commands (run, test, freeze, visualize, etc.)
-├── requirements.txt           ← Frozen Python dependencies
-└── README.md                  ← Project documentation
+│   └── transactions_demo.csv
+├── notebooks/
+│   └── final_report.ipynb
+├── output/suspicious_transfers/
+│   └── part-*.parquet
+├── scripts/
+│   ├── fraud_detection.py
+│   ├── generate_fake_data.py
+│   └── generate_report_notebook.py
+├── src/
+│   ├── etl.py
+│   ├── fraud_rules.py
+│   └── visualize.py
+├── tests/
+│   ├── test_etl.py
+│   └── test_fraud_rules.py
+├── Makefile
+├── README.md
+└── requirements.txt
 ```
+</details>
+
 
 ## Pipeline Flow
 
@@ -137,18 +140,22 @@ pip install -r requirements.txt
 
 Here are the main `make` commands available:
 
-| Command        | Description                                                  |
-|----------------|--------------------------------------------------------------|
-| `make init`    | Create virtual environment & install dependencies            |
-| `make fake`    | Generate fake input data (`scripts/generate_fake_data.py`)   |
-| `make transform` | Run ETL pipeline (`src/etl.py`)                             |
-| `make fraud`   | Apply fraud rules (`scripts/fraud_detection.py`)             |
-| `make visualize` | Create visualizations (`src/visualize.py`)                 |
-| `make report`  | Export HTML notebook report (`notebooks/final_report.ipynb`) |
-| `make test`    | Run unit tests with PyTest                                   |
-| `make freeze`  | Freeze environment to `requirements.txt`                     |
-| `make clean`   | Clean outputs, caches, and build artifacts                   |
-| `make all`     | Clean, run pipeline, run tests, generate report              |
+| Command        | Description                                                                 |
+|----------------|-----------------------------------------------------------------------------|
+| `make help`    | List all available make commands with descriptions                          |
+| `make init`    | Create virtual environment & install dependencies                           |
+| `make fake`    | Generate fake transaction data (`scripts/generate_fake_data.py`)            |
+| `make transform` | Run ETL pipeline (`src/etl.py`)                                            |
+| `make fraud`   | Apply fraud detection rules (`scripts/fraud_detection.py`)                  |
+| `make visualize` | Generate transaction distribution plots (`src/visualize.py`)              |
+| `make report`  | Generate final HTML report from notebook (`notebooks/final_report.ipynb`)   |
+| `make notebook`| (Optional) Generate notebook dynamically                                     |
+| `make test`    | Run unit tests with Pytest                                                   |
+| `make freeze`  | Freeze current environment into `requirements.txt` using pipreqs            |
+| `make clean`   | Remove all artifacts, outputs, and caches                                    |
+| `make prepare` | Create necessary folders for outputs and artifacts                          |
+| `make run`     | Run full pipeline (prepare + init + fake + transform + fraud + visualize)   |
+| `make all`     | Clean, run full pipeline, run tests, and generate report                    |
 
 👉 You can run `make help` at any time to see all available commands with brief descriptions.
 
