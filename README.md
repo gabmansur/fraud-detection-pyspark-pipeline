@@ -54,7 +54,7 @@ fraud-detection-pyspark-pipeline/
 ├── data/
 │   └── transactions.csv       ← Raw input transaction data
 │
-├── output/                    ← Optional output folder if separated
+├── output/                    ← Spark output from fraud_detection.py
 │
 ├── src/                       ← Source code for data pipeline
 │   ├── __init__.py

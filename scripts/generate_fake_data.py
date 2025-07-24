@@ -28,6 +28,26 @@ data = {
 
 df_fake = pd.DataFrame(data)
 
+# ───── FORCE FAKE FRAUD FOR TESTING ─────
+fraud_rows = pd.DataFrame({
+    "transaction_id": ["TXF001", "TXF002", "TXF003"],
+    "account_id": ["A999"] * 3,
+    "timestamp": [
+        "2025-06-10T10:00:00",
+        "2025-06-10T10:01:00",
+        "2025-06-10T10:02:00"
+    ],
+    "amount": [9999, 8888, 7777],
+    "currency": ["EUR"] * 3,
+    "description": ["suspicious transfer"] * 3,
+    "counterparty_name": ["FAKECO"] * 3,
+    "counterparty_iban": ["FAKEIBAN123"] * 3,
+    "category": ["crypto"] * 3,
+    "payment_type": ["single"] * 3
+})
+
+df_fake = pd.concat([df_fake, fraud_rows], ignore_index=True)
+
 # Save to CSV
 output_path = "data/transactions_demo.csv"
 df_fake.to_csv(output_path, index=False)

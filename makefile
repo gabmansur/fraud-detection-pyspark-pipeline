@@ -5,11 +5,13 @@ ifeq ($(OS),Windows_NT)
 	PYTHON := .venv\Scripts\python.exe
 	PIP := .venv\Scripts\pip.exe
 	JUPYTER := .venv\Scripts\jupyter.exe
-	RM := del /q
+	MKDIR := if not exist
+	RM := rmdir /s /q
 else
 	PYTHON := .venv/bin/python
 	PIP := .venv/bin/pip
 	JUPYTER := .venv/bin/jupyter
+	MKDIR := mkdir -p
 	RM := rm -rf
 endif
 
@@ -17,18 +19,22 @@ endif
 test:
 	PYTHONPATH=. $(PYTHON) -m pytest tests/
 
-# Full pipeline (setup + transform + fraud detection + visualization)
-run: prepare init transform fraud visualize
+# Full pipeline
+run: prepare init fake transform fraud visualize
 
-# Create necessary output folders if missing
+# Create necessary folders
 prepare:
-	mkdir -p output output/suspicious_transfers artifacts
-	
-# Create virtual environment and install dependencies
+	$(MKDIR) output && $(MKDIR) output/suspicious_transfers && $(MKDIR) artifacts
+
+# Create virtual environment and install requirements
 init:
 	test -d .venv || python3 -m venv .venv
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
+
+# Generate fake transaction data
+fake:
+	$(PYTHON) scripts/generate_fake_data.py
 
 # Run ETL logic
 transform:
@@ -38,26 +44,25 @@ transform:
 fraud:
 	$(PYTHON) scripts/fraud_detection.py
 
-# Generate visualizations using most recent fake data
+# Visualize results
 visualize:
 	$(PYTHON) src/visualize.py artifacts/output.csv
 
-# Execute final notebook and export HTML report
+# Generate notebook report
 report:
 	$(JUPYTER) nbconvert --to html --execute notebooks/final_report.ipynb --output artifacts/final_report.html
 
-# Save frozen requirements to file
+notebook:
+	.venv/bin/python scripts/generate_notebook.py
+
+# Freeze dependencies
 freeze:
 	$(PIP) install pipreqs
-	.venv/bin/pipreqs . --force
+	$(PYTHON) -m pipreqs . --force
 
-# Remove generated files
+# Clean artifacts and outputs
 clean:
 	$(RM) artifacts .pytest_cache __pycache__ */__pycache__ output
 
-# Generate realistic fake transactions
-fake:
-	$(PYTHON) scripts/generate_fake_data.py
-
-# Clean, reprocess, retest, replot
-all: clean transform test visualize
+# All-in-one
+all: clean run test report
