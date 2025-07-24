@@ -1,58 +1,63 @@
-# Makefile
+# Cross-platform Makefile for local development & CI
+# Automatically selects correct Python path
 
-# Shortcut list for local development.
-#
-#   make init        → Set up virtual env + install dependencies
-#   make transform   → Run ETL pipeline (load + transform)
-#   make fraud       → Run fraud detection rules
-#   make visualize   → Run visualization script
-#   make test        → Run unit tests
-#   make freeze      → Export current dependencies to requirements.txt
-#   make report      → Export executed notebook as HTML
-#   make clean       → Delete all generated files and caches
-#   make run         → Full pipeline (init + transform + fraud + visualize)
-#   make all         → Clean + transform + test + visualize (no install)
-#
-# -----------------------------
+ifeq ($(OS),Windows_NT)
+	PYTHON := .venv\Scripts\python.exe
+	PIP := .venv\Scripts\pip.exe
+	JUPYTER := .venv\Scripts\jupyter.exe
+	RM := del /q
+else
+	PYTHON := .venv/bin/python
+	PIP := .venv/bin/pip
+	JUPYTER := .venv/bin/jupyter
+	RM := rm -rf
+endif
 
-# Use bash-friendly paths for WSL/Linux
-
-# Run tests with correct PYTHONPATH
+# Run unit tests
 test:
-	PYTHONPATH=. .venv/bin/python -m pytest tests/
+	PYTHONPATH=. $(PYTHON) -m pytest tests/
 
-# Full pipeline (setup + ETL + fraud detection + visualizations)
-run: init transform fraud visualize
+# Full pipeline (setup + transform + fraud detection + visualization)
+run: prepare init transform fraud visualize
 
-# Setup virtual environment and install dependencies
+# Create necessary output folders if missing
+prepare:
+	mkdir -p output output/suspicious_transfers artifacts
+	
+# Create virtual environment and install dependencies
 init:
-	python3 -m venv .venv
-	.venv/bin/pip install --upgrade pip
-	.venv/bin/pip install -r requirements.txt
+	test -d .venv || python3 -m venv .venv
+	$(PIP) install --upgrade pip
+	$(PIP) install -r requirements.txt
 
-# Run the ETL script
+# Run ETL logic
 transform:
-	.venv/bin/python src/etl.py
+	$(PYTHON) src/etl.py
 
-# Run fraud detection logic
+# Apply fraud detection rules
 fraud:
-	.venv/bin/python src/fraud_rules.py
+	$(PYTHON) scripts/fraud_detection.py
 
-# Generate visualizations
+# Generate visualizations using most recent fake data
 visualize:
-	.venv/bin/python src/visualize.py
+	$(PYTHON) src/visualize.py artifacts/output.csv
 
-# Run and export final report notebook
+# Execute final notebook and export HTML report
 report:
-	.venv/bin/jupyter nbconvert --to html --execute notebooks/final_report.ipynb --output artifacts/final_report.html
+	$(JUPYTER) nbconvert --to html --execute notebooks/final_report.ipynb --output artifacts/final_report.html
 
-# Export current dependencies
+# Save frozen requirements to file
 freeze:
-	.venv/bin/pip freeze > requirements.txt
+	$(PIP) install pipreqs
+	.venv/bin/pipreqs . --force
 
-# Remove generated files and caches
+# Remove generated files
 clean:
-	rm -rf artifacts .pytest_cache __pycache__ */__pycache__ output
+	$(RM) artifacts .pytest_cache __pycache__ */__pycache__ output
 
-# Clean + ETL + tests + visualization (no init)
+# Generate realistic fake transactions
+fake:
+	$(PYTHON) scripts/generate_fake_data.py
+
+# Clean, reprocess, retest, replot
 all: clean transform test visualize

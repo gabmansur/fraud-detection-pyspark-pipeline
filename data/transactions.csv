@@ -1,6 +1,0 @@
-transaction_id,account_id,timestamp,amount,currency,description,counterparty_name,counterparty_iban,category,payment_type
-TX001,A001,2025-07-01 10:00:00,5000,EUR,Payment to BitDelta,BitDelta,NL98INGB0123456789,crypto,bulk
-TX002,A001,2025-07-01 10:03:00,4800,EUR,Online shopping,Amazônia,NL55SNSB0001234567,shopping,single
-TX003,A001,2025-07-01 10:05:00,5200,EUR,Flight booking,AirLux,NL44ABNA0987654321,travel,single
-TX004,A001,2025-07-01 10:07:00,4900,EUR,Another payment to BitDelta,BitDelta,NL98INGB0123456789,crypto,bulk
-TX005,A002,2025-07-01 11:00:00,2000,EUR,Gym membership,CrossNL,NL12RABO0111111111,health,single

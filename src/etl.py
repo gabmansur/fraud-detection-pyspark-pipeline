@@ -36,7 +36,7 @@ if __name__ == "__main__":
     )
 
     try:
-        df = load_data(spark, "data/transactions.csv")
+        df = load_data(spark, "data/transactions_demo.csv")
         df = transform(df)
 
         logger.info("Writing transformed data to artifacts/output.csv...")
