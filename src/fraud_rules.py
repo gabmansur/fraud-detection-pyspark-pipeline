@@ -19,7 +19,7 @@ def detect_repeated_transfers(df: DataFrame) -> DataFrame:
     windowed_df = (
         df.groupBy(
             window(col("timestamp"), "5 minutes", "1 minute"),
-            col("user_id"),
+            col("account_id"),
             col("counterparty_iban")
         )
         .agg(count("*").alias("transfer_count"))
