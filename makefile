@@ -64,5 +64,10 @@ freeze:
 clean:
 	$(RM) artifacts .pytest_cache __pycache__ */__pycache__ output
 
+help:
+	@echo "Available commands:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+
 # All-in-one
 all: clean run test report

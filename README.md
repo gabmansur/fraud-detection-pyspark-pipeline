@@ -1,5 +1,8 @@
 # 🕵️‍♀️ Fraud Detection with PySpark – Local Dev Prototype on Ubuntu (WSL2)
 
+👉 [View the full code on GitHub](https://github.com/gabmansur/fraud-detection-pyspark-pipeline)
+
+
 This is a clean and testable fraud detection prototype, built locally using PySpark and Ubuntu (via WSL2). It simulates how financial institutions could monitor transactions for suspicious activity while showing off a scalable, modular, and developer-friendly pipeline.
 
 ## Table of Contents
@@ -9,7 +12,7 @@ This is a clean and testable fraud detection prototype, built locally using PySp
 - [Architecture](#architecture)
 - [Pipeline Flow](#pipeline-flow)
 - [Key Features](#key-features)
-- [Setup & Usage](#setup--usage)
+- [Setup and Usage](#setup-and-usage)
 - [Fraud Detection Rules](#fraud-detection-rules)
 - [Tests](#tests)
 - [Output](#output)
@@ -79,7 +82,7 @@ fraud-detection-pyspark-pipeline/
 The local data pipeline follows this flow:
 
 1. **Load Raw Data**  
-   CSV file from `data/transactions.csv` is read into a PySpark DataFrame. The structure of the transaction data follows the public format described in the [Rabobank Developer Portal](https://developer.rabobank.nl/api-documentation). Columns like user_id, timestamp, amount, and counterparty_iban were adapted to reflect how real transaction records are formatted in banking APIs — keeping this as close to production as possible while still being lightweight and local. Columns like user_id, timestamp, amount, and counterparty_iban were adapted to reflect how real transaction records are formatted in banking APIs — keeping this as close to production as possible while still being lightweight and local.
+   CSV file from `data/transactions.csv` is read into a PySpark DataFrame. The structure of the transaction data is inspired in the public format described in the [Rabobank Developer Portal](https://developer.rabobank.nl/api-documentation). Columns like user_id, timestamp, amount, and counterparty_iban were adapted to reflect how real transaction records are formatted in banking APIs — keeping this as close to production as possible while still being lightweight and local.
 
 2. **ETL Transformations**  
    Performed in [`etl.py`](src/etl.py), including:
@@ -103,12 +106,18 @@ The local data pipeline follows this flow:
 - **Modular Design**: Each step is isolated (ETL, rules, visualization)
 - **Multiple Fraud Rules**: Combines time-based, value-based, and frequency-based filters
 - **Seaborn Visualizations**: Clean and informative plots
-- **Unit Tested**: Includes tests with `pytest` to ensure pipeline reliability
+- **Unit Tested**: Includes tests with `Pytest` to ensure pipeline reliability
 - **Makefile Shortcuts**: Clean dev flow using `make run`, `make visualize`, etc.
 - **Environment Portability**: Works inside WSL2 using `.venv`
 
 
 ## Setup and Usage
+
+### Prerequisites
+
+- Python 3.10+
+- Java 8+ (required by PySpark)
+- WSL2 or Ubuntu (recommended for consistent environment)
 
 1. Clone and Initialize
 ```bash
@@ -125,15 +134,23 @@ pip install -r requirements.txt
 ```
 
 3. Run the Pipeline
-```bash
-make transform         # Run ETL
-make fraud             # Apply fraud rules
-make visualize         # Generate visual report
-make test              # Run unit tests
 
-or run it all:
-make all
-```
+Here are the main `make` commands available:
+
+| Command        | Description                                                  |
+|----------------|--------------------------------------------------------------|
+| `make init`    | Create virtual environment & install dependencies            |
+| `make fake`    | Generate fake input data (`scripts/generate_fake_data.py`)   |
+| `make transform` | Run ETL pipeline (`src/etl.py`)                             |
+| `make fraud`   | Apply fraud rules (`scripts/fraud_detection.py`)             |
+| `make visualize` | Create visualizations (`src/visualize.py`)                 |
+| `make report`  | Export HTML notebook report (`notebooks/final_report.ipynb`) |
+| `make test`    | Run unit tests with PyTest                                   |
+| `make freeze`  | Freeze environment to `requirements.txt`                     |
+| `make clean`   | Clean outputs, caches, and build artifacts                   |
+| `make all`     | Clean, run pipeline, run tests, generate report              |
+
+👉 You can run `make help` at any time to see all available commands with brief descriptions.
 
 ## Fraud Detection Rules
 
@@ -301,7 +318,7 @@ I wanted a workflow that:
 
 ❓Why didn’t you use machine learning?
 
-Because not every problem is a job interview for an XGBoost model. Most fraud detection in production still relies on heuristic and rules-based systems especially for explainability, auditability, and integration with legacy systems. This prototype follows that philosophy: use what works, build confidence first, then layer on the complexity if and when it's needed.
+Because not every problem requires an XGBoost model to prove technical competence, hehe. Most fraud detection in production still relies on heuristic and rules-based systems especially for explainability, auditability, and integration with legacy systems. This prototype follows that philosophy: use what works, build confidence first, then layer on the complexity if and when it's needed.
 
 ❓How would you productionize this?
 In phases:
@@ -318,7 +335,7 @@ Also, I have better things to do than remember 6 flags every time I want to test
 
 ❓What surprised you while building this?
 
-I'd say more like want to sit and cry with how much time I lost battling Windows instead of writing code. Between weird python3 alias issues, pip behaving like it was on vacation, and file paths deciding to rebel, I quickly learned that trying to do data engineering on native Windows is like trying to run a marathon in flip-flops.
+Honestly, I spent more time debugging Windows issues than writing code... Between weird python3 alias issues, pip behaving like it was on vacation, and file paths deciding to rebel, I quickly learned that trying to do data engineering on native Windows is like trying to run a marathon in flip-flops.
 
 ![aaaaaaa](meme.png)
 
@@ -332,3 +349,4 @@ Tom is Head of QA: he walks across the keyboard during testing.
 Mia is the quiet CTO: she watches from her bench and judges your DAG decisions in silence.
 Coffee is the uncredited co-author of every function that works on the first try.
 
+📫 Reach out on [LinkedIn](https://linkedin.com/in/gabriellamansur) or [email](mailto:gabmansur@gmail.com) if you’d like to chat about the project or see how I approach real-world engineering challenges.
