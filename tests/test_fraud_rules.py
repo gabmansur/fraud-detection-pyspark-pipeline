@@ -24,14 +24,14 @@ def test_detect_repeated_transfers(spark):
         ("u1", "NL01BANK0123456789", "2023-01-01 12:02:00"),
         ("u2", "NL02BANK9876543210", "2023-01-01 13:00:00")  # control user
     ]
-    df = spark.createDataFrame(data, ["user_id", "counterparty_iban", "timestamp"])
+    df = spark.createDataFrame(data, ["account_id", "counterparty_iban", "timestamp"])
 
     result = detect_repeated_transfers(df)
     result_local = result.collect()
 
     # Assert: All flagged windows are for the right user + iban
     for row in result_local:
-        assert row["user_id"] == "u1"
+        assert row["account_id"] == "u1"
         assert row["counterparty_iban"] == "NL01BANK0123456789"
         assert row["transfer_count"] >= 3
 
